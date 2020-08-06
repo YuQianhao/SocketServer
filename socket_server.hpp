@@ -3,6 +3,7 @@
 #define __SOCKET_SERVER_H__
 #include "thread_pool.hpp"
 #include <winsock2.h>
+#include <memory>
 #include <Windows.h>
 #pragma comment(lib,"ws2_32.lib")
 
@@ -12,7 +13,9 @@ namespace yqh
 	class socket_client;
 	class socket_server_exce;
 
-	typedef void (*socket_proc)(socket_client *);
+	typedef std::unique_ptr<socket_client> socket_client_ptr;
+	
+	typedef void (*socket_proc)(socket_client_ptr);
 	typedef void (*socket_listener_init)();
 	typedef void (*socket_listener_create)();
 	typedef void (*socket_listener_bind)();

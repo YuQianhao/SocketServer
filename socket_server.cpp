@@ -2,6 +2,8 @@
 
 using namespace yqh;
 
+static void _CBG_PROC_SOCKET_CLIENT(socket_client *,socket_proc);
+
 socket_server::socket_server(const char* addr, unsigned short port, unsigned thpool,unsigned backlog):
 		threadPool(thpool),
 		csAddr(addr),
@@ -102,7 +104,7 @@ void socket_server::loop(socket_proc proc) noexcept(false)
 		if(sClient != INVALID_SOCKET)
 		{
 			socket_client* client = new socket_client(sClient, remoteAddr);
-			threadPool.enqueue(this->procSocket, client);
+			threadPool.enqueue(_CBG_PROC_SOCKET_CLIENT, client,this->procSocket);
 		}
 	}
 }
@@ -194,4 +196,9 @@ unsigned long socket_server_exce::errorCode()
 
 socket_server_exce::~socket_server_exce()
 {
+}
+
+void _CBG_PROC_SOCKET_CLIENT(socket_client* client, socket_proc proc){
+	std::unique_ptr<socket_client> upClient(client);
+	proc(std::move(upClient));
 }

@@ -59,51 +59,45 @@ try{
 The loop function receives a function pointer. The circle of the function pointer is defined as follows:
 
 ```c++
-typedef void (*socket_proc)(socket_client *);
+typedef void (*socket_proc)(socket_client_ptr);
 ```
 
-Whenever a new socket enters, an idle thread is allocated in the ThreadPool to execute the function pointed to by the function pointer. The function pointer receives a function named "socket_client",This type is used to represent the client. It contains some common operations of the client, such as:
+Whenever a new thread in the socket pool is idle, it points to a new thread to execute the function. The function pointer receives a parameter named **"socket_client"**, which is an intelligent pointer. In order to reduce the difficulty of memory management, we use the **std::unique_ t** to wrap the client pointer so that you don't need to focus on memory issues. We use this type to represent the client. It contains some common operations of the client, such as:
 
 ```c++
-void socketProc(socket_client *client)
+typedef std::unique_t<socket_client> socket_client_ptr;
+```
+
+```c++
+void socketProc(socket_client_ptr client)
 {
 	char *data = client->read(255);
 	delete[] data;
     const char *sendData="This Socket Proc.";
 	client->send("Hello World!");
     client->send(sendData,strlen(sendData));
-	delete client;
 }
 ```
+
+**<font color=#e60000>Note that the read method does not need to be used to release the memory automatically.</font>**
 
 Of course, if you want to know the IP address of the client, you should call the **addr ()** method to get it, for example:
 
 ```c++
-void socketProc(socket_client *client)
+void socketProc(socket_client_ptr client)
 {
 	const char *clientAddr=client->addr();
-	delete client;
 }
 ```
 
-If you have finished processing the client, you need to close the socket. There are two ways to close the socket, as shown below:
+If you have finished processing the client's task, generally speaking, you don't need to call the method to close the socket, because the client is in the scope of automatic memory management. When the function call is finished, the client object will be automatically released, and the link will be closed. Of course, if it is necessary to manually close the connection, you can call "close()" To explicitly close.
 
 ```c++
-void socketProc(socket_client *client)
+void socketProc(socket_client_ptr client)
 {
 	client->close();
-	delete client;
 }
 ```
-
-```c++
-void socketProc(socket_client *client)
-{
-	delete client;
-}
-```
-
-However, it is worth noting that if you use the first method and call " close() "to close the socket, you must call delete to delete the client object, because the pointer to the client is not an intelligent pointer. We recommend that you use delete to close the socket.
 
 Some errors will occur in the process of loop. We have defined an exception class to handle these errors. You must use try... Catch to catch this exception unless you guarantee that no error will occur.
 
