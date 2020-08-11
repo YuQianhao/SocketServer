@@ -1,6 +1,6 @@
-# Win32 Socket Server
+# Win32&Linux Socket Server
 
-​		The websocket package used by the Win32 platform, which encapsulates the socket and ThreadPool of Win32, can receive and send the socket with very little code.This suite provides a variety of state listeners, configurable thread pools.
+​		The websocket package used by the Win32&Linux platform, which encapsulates the socket and ThreadPool of Win32&Linux, can receive and send the socket with very little code.This suite provides a variety of state listeners, configurable thread pools.
 
 **[Statement]  ThreadPool refers to GitHub：https://github.com/progschj/ThreadPool**
 
